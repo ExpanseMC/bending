@@ -1,0 +1,14 @@
+name: Bending
+version: 1.0.0
+api-version: 1.13
+main: com.expansemc.bending.plugin.Bending
+description: A modern, performant bending plugin.
+load: STARTUP
+author: doot
+website: https://expansemc.com
+commands:
+  bending:
+    description: The main bending command.
+    aliases: [b]
+    permission: bending.command.base
+    usage: "Usage: /bending help|bind|clear|display|elements|list"
