@@ -1,1 +1,1 @@
-Copyright 2020 ExpanseMC. All rights reserved.
+Copyright (c) ExpanseMC. All rights reserved.
