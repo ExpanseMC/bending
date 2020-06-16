@@ -13,7 +13,5 @@ class BenderListener : Listener {
     fun onJoin(event: PlayerJoinEvent) {
         val player: Player = event.player
         val bender: Bender = BenderService.instance.getOrCreateBender(player)
-
-
     }
 }

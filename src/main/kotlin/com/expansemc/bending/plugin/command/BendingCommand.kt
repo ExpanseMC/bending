@@ -1,6 +1,7 @@
 package com.expansemc.bending.plugin.command
 
 import com.expansemc.bending.api.ability.Ability
+import com.expansemc.bending.api.ability.AbilityExecutionTypes
 import com.expansemc.bending.api.ability.AbilityType
 import com.expansemc.bending.api.bender.Bender
 import com.expansemc.bending.api.bender.BenderService
@@ -71,6 +72,12 @@ class BendingCommand : CommandExecutor {
                 }
 
                 val bender: Bender = BenderService.instance.getOrCreateBender(sender)
+
+                if (AbilityExecutionTypes.PASSIVE in abilityType.executionTypes) {
+                    bender.addPassive(ability)
+                    sender.sendMessage("${GREEN}Binded ${abilityType.element.color}${abilityType.name} ${GREEN}as a passive.")
+                }
+
                 bender.selected = ability
                 sender.sendMessage("${GREEN}Binded ${ability.type.element.color}${ability.type.name} ${GREEN}to the currently selected hotbar slot.")
             }
