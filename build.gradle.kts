@@ -1,6 +1,7 @@
 plugins {
     java
     kotlin("jvm") version "1.3.72"
+    kotlin("plugin.serialization") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     `maven-publish`
 }
@@ -23,13 +24,13 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expansemc:bending-api")
+    implementation(project(":bending-api"))
     implementation("org.spongepowered:configurate-hocon:3.6.1")
     implementation("me.lucko:commodore:1.8")
 
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 
-    runtime("com.expansemc:bending-api")
+    runtime(project(":bending-api"))
     runtime("org.spongepowered:configurate-hocon:3.6.1")
     runtime("me.lucko:commodore:1.8")
 }
@@ -54,9 +55,11 @@ tasks {
         }
     }
     shadowJar {
-        archiveClassifier.set("dist")
-        archiveBaseName.set("bending")
-        archiveVersion.set("${project.version}-a${project.dependencies.module("com.expansemc:bending-api").version}")
+        val bendingApi = project(":bending-api")
+
+        archiveClassifier.set(null as String?)
+        archiveBaseName.set("Bending")
+        archiveVersion.set("v0.2.0-a${bendingApi.properties["version.api"]!!}")
 
         dependencies {
             exclude(dependency("org.spigotmc:spigot-api:.*"))
