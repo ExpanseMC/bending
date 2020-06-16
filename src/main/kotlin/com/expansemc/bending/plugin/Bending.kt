@@ -18,6 +18,8 @@ import com.expansemc.bending.plugin.command.BendingCommand
 import com.expansemc.bending.plugin.config.SimpleAbilityConfig
 import com.expansemc.bending.plugin.element.SimpleElement
 import com.expansemc.bending.plugin.listener.AbilityListener
+import com.expansemc.bending.plugin.protection.BlockProtections
+import com.expansemc.bending.plugin.protection.EntityProtections
 import com.expansemc.bending.plugin.registry.SimpleCatalogRegistry
 import com.expansemc.bending.plugin.registry.SimpleFactoryRegistry
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -62,6 +64,7 @@ class Bending : JavaPlugin(), Listener {
         registerDefaultAbilityContextKeys()
         registerDefaultAbilityExecutionTypes()
         registerDefaultElements()
+        registerProtections()
         registerListeners()
         registerCommands()
     }
@@ -70,14 +73,8 @@ class Bending : JavaPlugin(), Listener {
         this.logger.info("Registering services...")
 
         Bukkit.getServicesManager().apply {
-            register(
-                CatalogRegistry::class.java,
-                SimpleCatalogRegistry(), this@Bending, ServicePriority.Highest
-            )
-            register(
-                FactoryRegistry::class.java,
-                SimpleFactoryRegistry(), this@Bending, ServicePriority.Highest
-            )
+            register(CatalogRegistry::class.java, SimpleCatalogRegistry(), this@Bending, ServicePriority.Highest)
+            register(FactoryRegistry::class.java, SimpleFactoryRegistry(), this@Bending, ServicePriority.Highest)
             register(AbilityService::class.java, SimpleAbilityService(), this@Bending, ServicePriority.Highest)
             register(BenderService::class.java, SimpleBenderService(), this@Bending, ServicePriority.Highest)
             register(BendingService::class.java, SimpleBendingService(this@Bending), this@Bending, ServicePriority.Highest)
@@ -193,6 +190,57 @@ class Bending : JavaPlugin(), Listener {
             )
     }
 
+    private fun registerProtections() {
+        this.logger.info("Registering protections...")
+
+        // Register generic damage protection
+        CatalogRegistry.instance.register(EntityProtections.GENERIC)
+
+        if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
+            // Register worldguard integration
+            CatalogRegistry.instance.register(BlockProtections.WORLDGUARD)
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("Towny")) {
+            // Register towny integration
+            CatalogRegistry.instance.register(BlockProtections.TOWNY)
+        }
+    }
+
+    private fun registerListeners() {
+        this.logger.info("Registering listeners...")
+
+        Bukkit.getPluginManager().registerEvents(AbilityListener(), this)
+        Bukkit.getPluginManager().registerEvents(ScoreboardManager(), this)
+        Bukkit.getPluginManager().registerEvents(this, this)
+    }
+
+    private fun registerCommands() {
+        this.logger.info("Registering commands...")
+
+        val commandBending: PluginCommand = getCommand("bending")!!
+        commandBending.setExecutor(BendingCommand())
+
+        if (CommodoreProvider.isSupported()) {
+            val commodore: Commodore = CommodoreProvider.getCommodore(this)
+
+            val node: LiteralArgumentBuilder<*> = literal<Any?>("bending")
+                .then(literal("help"))
+                .then(
+                    literal<Any?>("bind")
+                        .then(RequiredArgumentBuilder.argument("ability", StringArgumentType.string()))
+                )
+                .then(literal("clear"))
+                .then(literal("display"))
+                .then(literal("elements"))
+                .then(
+                    literal<Any?>("list")
+                        .then(RequiredArgumentBuilder.argument("element", StringArgumentType.string()))
+                )
+
+            commodore.register(commandBending, node)
+        }
+    }
+
     private fun registerDefaultAbilityConfig() {
         this.logger.info("Registering default ability config...")
 
@@ -235,45 +283,12 @@ class Bending : JavaPlugin(), Listener {
         )
     }
 
-    private fun registerListeners() {
-        this.logger.info("Registering listeners...")
-
-        Bukkit.getPluginManager().registerEvents(AbilityListener(), this)
-        Bukkit.getPluginManager().registerEvents(ScoreboardManager(), this)
-        Bukkit.getPluginManager().registerEvents(this, this)
-    }
-
-    private fun registerCommands() {
-        this.logger.info("Registering commands...")
-
-        val commandBending: PluginCommand = getCommand("bending")!!
-        commandBending.setExecutor(BendingCommand())
-
-        if (CommodoreProvider.isSupported()) {
-            val commodore: Commodore = CommodoreProvider.getCommodore(this)
-
-            val node: LiteralArgumentBuilder<*> = literal<Any?>("bending")
-                .then(literal("help"))
-                .then(literal<Any?>("bind")
-                    .then(RequiredArgumentBuilder.argument("ability", StringArgumentType.string())))
-                .then(literal("clear"))
-                .then(literal("display"))
-                .then(literal("elements"))
-                .then(literal<Any?>("list")
-                    .then(RequiredArgumentBuilder.argument("element", StringArgumentType.string())))
-
-            commodore.register(commandBending, node)
-        }
-    }
-
     override fun onDisable() {
 
     }
 
     @EventHandler
     fun onServerLoad(event: ServerLoadEvent) {
-        if (event.type != ServerLoadEvent.LoadType.STARTUP) return
-
         registerDefaultAbilityConfig()
     }
 }

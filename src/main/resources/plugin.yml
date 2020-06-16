@@ -6,6 +6,7 @@ description: A modern, performant bending plugin.
 load: STARTUP
 author: doot
 website: https://expansemc.com
+softdepend: [WorldGuard]
 commands:
   bending:
     description: The main bending command.

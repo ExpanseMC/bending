@@ -3,11 +3,12 @@ plugins {
     kotlin("jvm") version "1.3.72"
     kotlin("plugin.serialization") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    `maven-publish`
+    id("net.linguica.maven-settings") version "0.5"
+    maven
 }
 
 group = "com.expansemc"
-version = "0.2.1"
+version = "0.3.0"
 
 repositories {
     mavenCentral()
@@ -19,8 +20,16 @@ repositories {
     maven("https://repo.spongepowered.org/maven")
     // Configurate-Serialization
     maven("https://jitpack.io")
-    //Brigadier
+    // Brigadier
     maven("https://libraries.minecraft.net")
+
+    // WorldGuard
+    maven("https://maven.enginehub.org/repo/")
+    // Towny
+    maven {
+        name = "github-towny"
+        setUrl("https://maven.pkg.github.com/TownyAdvanced/Towny")
+    }
 }
 
 dependencies {
@@ -28,11 +37,17 @@ dependencies {
     implementation("org.spongepowered:configurate-hocon:3.6.1")
     implementation("me.lucko:commodore:1.8")
 
-    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
-
     runtime(project(":bending-api"))
     runtime("org.spongepowered:configurate-hocon:3.6.1")
     runtime("me.lucko:commodore:1.8")
+
+    // Spigot
+    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+
+    // WorldGuard
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.0")
+    // Towny
+    compileOnly("com.palmergames.bukkit.towny:Towny:0.96.0.0")
 }
 
 configure<JavaPluginConvention> {
