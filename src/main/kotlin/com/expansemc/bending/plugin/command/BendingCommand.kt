@@ -78,8 +78,10 @@ class BendingCommand : CommandExecutor {
                     sender.sendMessage("${GREEN}Binded ${abilityType.element.color}${abilityType.name} ${GREEN}as a passive.")
                 }
 
-                bender.selected = ability
-                sender.sendMessage("${GREEN}Binded ${ability.type.element.color}${ability.type.name} ${GREEN}to the currently selected hotbar slot.")
+                if (abilityType.executionTypes.singleOrNull() != AbilityExecutionTypes.PASSIVE) {
+                    bender.selected = ability
+                    sender.sendMessage("${GREEN}Binded ${ability.type.element.color}${ability.type.name} ${GREEN}to the currently selected hotbar slot.")
+                }
             }
             "clear", "c" -> {
                 val bender: Bender = parseOptionalPlayerArgument(
