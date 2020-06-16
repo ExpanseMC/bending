@@ -1,5 +1,5 @@
 name: Bending
-version: 1.0.0
+version: @version@
 api-version: 1.13
 main: com.expansemc.bending.plugin.Bending
 description: A modern, performant bending plugin.

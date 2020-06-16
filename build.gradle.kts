@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.expansemc"
-version = "0.1.2"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
@@ -48,9 +48,15 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
+    processResources {
+        filesMatching("plugin.yml") {
+            filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to mapOf("version" to project.version))
+        }
+    }
     shadowJar {
         archiveClassifier.set("dist")
         archiveBaseName.set("bending")
+        archiveVersion.set("${project.version}-a${project.dependencies.module("com.expansemc:bending-api").version}")
 
         dependencies {
             exclude(dependency("org.spigotmc:spigot-api:.*"))
