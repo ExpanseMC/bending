@@ -67,6 +67,7 @@ public final class AbilityTaskFactory implements AbilityTask.Factory {
             );
         } catch (final AbilityException e) {
             context.cause().audience().sendMessage(e.toComponent(() -> DEFAULT_ERROR_MESSAGE.append(context.cause().ability().name())));
+            context.cancel();
         }
     }
 
@@ -122,6 +123,7 @@ public final class AbilityTaskFactory implements AbilityTask.Factory {
                         this.onComplete.execute(this.context);
                     } catch (final AbilityException e) {
                         this.context.cause().audience().sendMessage(e.toComponent(() -> DEFAULT_ERROR_MESSAGE.append(this.context.cause().ability().name())));
+                        this.context.cancel();
                     }
                 }
 
@@ -148,6 +150,7 @@ public final class AbilityTaskFactory implements AbilityTask.Factory {
                 );
             } catch (final AbilityException e) {
                 this.context.cause().audience().sendMessage(e.toComponent(() -> DEFAULT_ERROR_MESSAGE.append(this.context.cause().ability().name())));
+                this.context.cancel();;
             }
         }
     }
