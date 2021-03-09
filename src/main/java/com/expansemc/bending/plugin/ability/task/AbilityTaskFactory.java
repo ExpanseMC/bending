@@ -150,7 +150,7 @@ public final class AbilityTaskFactory implements AbilityTask.Factory {
                 );
             } catch (final AbilityException e) {
                 this.context.cause().audience().sendMessage(e.toComponent(() -> DEFAULT_ERROR_MESSAGE.append(this.context.cause().ability().name())));
-                this.context.cancel();;
+                this.context.cancel();
             }
         }
     }
