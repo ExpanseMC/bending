@@ -1,0 +1,29 @@
+{
+  "plugins": [
+    {
+      "loader": "java_plain",
+      "id": "bending-classic",
+      "name": "BendingClassic",
+      "version": "0.1.0",
+      "main-class": "com.expansemc.bending.classic.BendingClassic",
+      "description": "Classic ATLA abilities brought to modern Minecraft.",
+      "links": {
+        "homepage": "https://ore.spongepowered.org/doot/bending-classic",
+        "source": "https://github.com/ExpanseMC/bending-classic",
+        "issues": "https://github.com/ExpanseMC/bending-classic/issues"
+      },
+      "contributors": [
+        {
+          "name": "doot",
+          "description": "Lead Developer"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "8.0.0"
+        }
+      ]
+    }
+  ]
+}
