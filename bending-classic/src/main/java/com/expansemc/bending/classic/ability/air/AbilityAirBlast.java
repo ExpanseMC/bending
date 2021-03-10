@@ -42,10 +42,12 @@ public final class AbilityAirBlast {
     // TODO: Runtime configuration values
     private static final double KNOCKBACK_OTHER = 1.6;
     private static final double KNOCKBACK_SELF = 2.0;
-    private static final double RADIUS = 1.0;
-    private static final double RANGE = 25.0;
+    private static final double RADIUS = 0.5;
+    private static final double RANGE = 20.0;
     private static final double SELECT_RANGE = 10.0;
-    private static final double SPEED = 21.0;
+    private static final double SPEED = 25.0;
+
+    private static final double SELECT_RANGE_SQUARED_PADDED = 2.25 * SELECT_RANGE * SELECT_RANGE;
 
     /**
      * Handles the initial logic of when the player activates AirBlast.
@@ -104,7 +106,7 @@ public final class AbilityAirBlast {
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) {
-            if (this.origin.getPosition().distanceSquared(cause.eyePosition()) > SELECT_RANGE * SELECT_RANGE) {
+            if (this.origin.getPosition().distanceSquared(cause.eyePosition()) > SELECT_RANGE_SQUARED_PADDED) {
                 // Beyond selection range.
                 return AbilityTaskResult.end();
             }
