@@ -2,7 +2,6 @@ package com.expansemc.bending.classic.ability.air;
 
 import com.expansemc.bending.api.ability.Ability;
 import com.expansemc.bending.api.ability.AbilityCategories;
-import com.expansemc.bending.api.ability.AbilityControls;
 import com.expansemc.bending.api.ability.AbilityException;
 import com.expansemc.bending.api.ability.execution.AbilityCause;
 import com.expansemc.bending.api.ability.task.AbilityTask;
@@ -24,13 +23,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.expansemc.bending.api.ability.AbilityControls.PRIMARY;
+import static com.expansemc.bending.api.ability.AbilityControls.SNEAK;
+
 public final class AbilityAirBlast {
 
     public static final Ability ABILITY = Ability.builder()
             .name(Component.text("AirBlast"))
             .category(AbilityCategories.AIR)
             .executor(AbilityTask.immediate(Start::new))
-            .addControls(AbilityControls.PRIMARY.get(), AbilityControls.SNEAK.get())
+            .addControls(PRIMARY.get(), SNEAK.get())
             .build();
 
     private static final ParticleEffect PARTICLE_EFFECT = ParticleEffect.builder()
@@ -55,19 +57,19 @@ public final class AbilityAirBlast {
     private static final class Start implements AbilityTaskExecutor {
 
         private static final Component VALID_CONTROLS = Component.text("Valid ability controls: ")
-                .append(AbilityControls.SNEAK.get().name())
+                .append(SNEAK.get().name())
                 .append(Component.text(", "))
-                .append(AbilityControls.PRIMARY.get().name());
+                .append(PRIMARY.get().name());
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) throws AbilityException {
-            if (cause.control() == AbilityControls.SNEAK.get()) {
+            if (cause.control() == SNEAK.get()) {
                 // Run the sneak task.
                 final ServerLocation origin = cause.targetLocation(SELECT_RANGE);
                 final Vector3d direction = cause.headDirection();
 
                 return AbilityTaskResult.next(Sneak.task(origin, direction));
-            } else if (cause.control() == AbilityControls.PRIMARY.get()) {
+            } else if (cause.control() == PRIMARY.get()) {
                 // Run the primary task.
                 final ServerLocation origin = cause.eyeLocation();
                 final Vector3d direction = cause.headDirection();
@@ -91,7 +93,7 @@ public final class AbilityAirBlast {
 
         private static AbilityTask task(final ServerLocation origin, final Vector3d direction) {
             return AbilityTask.repeatingUntil(
-                    AbilityControls.PRIMARY.get(),
+                    PRIMARY.get(),
                     Primary.task(origin, direction, true),
                     Ticks.single(),
                     () -> new Sneak(origin)
