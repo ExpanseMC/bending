@@ -41,7 +41,7 @@ public final class AbilityControlListener {
         }
 
         currentAbility(player).ifPresent(ability -> {
-            player.sendMessage(Component.text("AbilityControl: SNEAK"));
+            player.sendActionBar(Component.text("SNEAK"));
 
             final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SNEAK.get(), event.getCause());
             final Bender bender = Bender.player(player);
@@ -62,7 +62,7 @@ public final class AbilityControlListener {
             frame.addContext(BendingEventContextKeys.FALL_DISTANCE, player.fallDistance().get());
 
             currentAbility(player).ifPresent(ability -> {
-                player.sendMessage(Component.text("AbilityControl: FALL"));
+                player.sendActionBar(Component.text("FALL"));
 
                 final AbilityCause cause = AbilityCause.of(ability, AbilityControls.FALL.get(), frame.getCurrentCause());
                 final Bender bender = Bender.player(player);
@@ -76,7 +76,7 @@ public final class AbilityControlListener {
     public void onPrimary(final InteractItemEvent.Primary event,
                           @First final ServerPlayer player) {
         currentAbility(player).ifPresent(ability -> {
-            player.sendMessage(Component.text("AbilityControl: PRIMARY"));
+            player.sendActionBar(Component.text("PRIMARY"));
 
             final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.getCause());
             final Bender bender = Bender.player(player);
@@ -89,7 +89,7 @@ public final class AbilityControlListener {
     public void onSecondary(final InteractItemEvent.Secondary event,
                             @First final ServerPlayer player) {
         currentAbility(player).ifPresent(ability -> {
-            player.sendMessage(Component.text("AbilityControl: SECONDARY"));
+            player.sendActionBar(Component.text("SECONDARY"));
 
             final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SECONDARY.get(), event.getCause());
             final Bender bender = Bender.player(player);
@@ -108,7 +108,7 @@ public final class AbilityControlListener {
         }
 
         currentAbility(player).ifPresent(ability -> {
-            player.sendMessage(Component.text("AbilityControl: SNEAK"));
+            player.sendActionBar(Component.text("SNEAK"));
 
             final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SNEAK.get(), event.getCause());
             final Bender bender = Bender.player(player);
