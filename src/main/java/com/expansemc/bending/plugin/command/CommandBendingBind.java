@@ -14,9 +14,6 @@ import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class CommandBendingBind implements CommandExecutor {
 
     private static final Parameter.Value<Ability> ABILITY_PARAMETER =
@@ -37,11 +34,7 @@ public final class CommandBendingBind implements CommandExecutor {
                 .orElseThrow(() -> new CommandException(Component.text("Must be a player to use this command.")));
 
         final int selectedSlotIndex = player.getInventory().getHotbar().getSelectedSlotIndex();
-        player.transform(BendingKeys.ABILITY_HOTBAR, map -> {
-            final Map<Integer, Ability> result = new HashMap<>();
-            result.put(selectedSlotIndex, ability);
-            return result;
-        });
+        player.offerSingle(BendingKeys.ABILITY_HOTBAR, selectedSlotIndex, ability);
 
         player.sendMessage(Component.text("Selected ability: ", NamedTextColor.GREEN)
                 .append(ability.name()));
