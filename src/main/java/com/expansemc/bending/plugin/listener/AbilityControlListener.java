@@ -1,12 +1,11 @@
 package com.expansemc.bending.plugin.listener;
 
-import com.expansemc.bending.api.Bending;
 import com.expansemc.bending.api.ability.Ability;
 import com.expansemc.bending.api.ability.AbilityControls;
 import com.expansemc.bending.api.ability.execution.AbilityCause;
 import com.expansemc.bending.api.bender.Bender;
+import com.expansemc.bending.api.data.BendingKeys;
 import com.expansemc.bending.api.event.BendingEventContextKeys;
-import com.expansemc.bending.api.registry.BendingRegistryTypes;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.Sponge;
@@ -21,11 +20,13 @@ import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -73,10 +74,10 @@ public final class AbilityControlListener {
     }
 
     @Listener
-    public void onPrimary(final InteractItemEvent.Primary event,
+    public void onInteractItemPrimary(final InteractItemEvent.Primary event,
                           @First final ServerPlayer player) {
         currentAbility(player).ifPresent(ability -> {
-            player.sendActionBar(Component.text("PRIMARY"));
+            player.sendActionBar(Component.text("PRIMARY-item"));
 
             final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.getCause());
             final Bender bender = Bender.player(player);
@@ -86,7 +87,20 @@ public final class AbilityControlListener {
     }
 
     @Listener
-    public void onSecondary(final InteractItemEvent.Secondary event,
+    public void onInteractEntityPrimary(final InteractEntityEvent.Primary event,
+                                        @First final ServerPlayer player) {
+        currentAbility(player).ifPresent(ability -> {
+            player.sendActionBar(Component.text("PRIMARY-entity"));
+
+            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.getCause());
+            final Bender bender = Bender.player(player);
+
+            bender.execute(cause);
+        });
+    }
+
+    @Listener
+    public void onInteractItemSecondary(final InteractItemEvent.Secondary event,
                             @First final ServerPlayer player) {
         currentAbility(player).ifPresent(ability -> {
             player.sendActionBar(Component.text("SECONDARY"));
@@ -128,11 +142,10 @@ public final class AbilityControlListener {
     }
 
     private static Optional<Ability> currentAbility(final ServerPlayer player) {
-        return Optional.of(BendingRegistryTypes.ABILITY.get().value(Bending.key("air_blast")));
-//        final int selectedSlotIndex = player.getInventory().getHotbar()
-//                .getSelectedSlotIndex();
-//        final Ability ability = player.getOrElse(BendingKeys.ABILITY_HOTBAR, Map.of())
-//                .get(selectedSlotIndex);
-//        return Optional.ofNullable(ability);
+        final int selectedSlotIndex = player.getInventory().getHotbar()
+                .getSelectedSlotIndex();
+        final Ability ability = player.getOrElse(BendingKeys.ABILITY_HOTBAR, Map.of())
+                .get(selectedSlotIndex);
+        return Optional.ofNullable(ability);
     }
 }
