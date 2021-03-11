@@ -10,7 +10,9 @@ import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3d;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -21,6 +23,21 @@ import java.util.function.Predicate;
  * than execution at the end of the ray.</p>
  */
 public final class Raycast {
+
+    public static boolean advanceAll(final Iterable<Raycast> raycasts, final BiPredicate<Raycast, ServerLocation> predicate) {
+        final Iterator<Raycast> iter = raycasts.iterator();
+        boolean anySucceeded = false;
+        while (iter.hasNext()) {
+            final Raycast raycast = iter.next();
+
+            if (raycast.advance(predicate)) {
+                anySucceeded = true;
+            } else {
+                iter.remove();
+            }
+        }
+        return anySucceeded;
+    }
 
     private final ServerLocation origin;
     private final Vector3d direction;
@@ -55,6 +72,16 @@ public final class Raycast {
      * @return True if the ray moved, false otherwise.
      */
     public final boolean advance(final Predicate<ServerLocation> predicate) {
+        return this.advance(((r, l) -> predicate.test(l)));
+    }
+
+    /**
+     * Advances the ray based on the provided predicate.
+     *
+     * @param predicate
+     * @return True if the ray moved, false otherwise.
+     */
+    public final boolean advance(final BiPredicate<Raycast, ServerLocation> predicate) {
         if (this.range > 0 && this.currentLocation.getPosition().distanceSquared(this.origin.getPosition()) > this.rangeSquared) {
             // The ray is beyond its allowed range.
             return false;
@@ -65,7 +92,7 @@ public final class Raycast {
             return false;
         }
 
-        final boolean result = predicate.test(this.currentLocation);
+        final boolean result = predicate.test(this, this.currentLocation);
         if (!result) {
             return false;
         }
@@ -103,7 +130,7 @@ public final class Raycast {
     }
 
     public final boolean pushEntity(final Cause source, final Entity target, final boolean canPushSelf,
-                              final double knockbackSelf, final double knockbackOther) {
+                                    final double knockbackSelf, final double knockbackOther) {
         final boolean isSelf = source.contains(target);
 
         double knockback = knockbackOther;
@@ -122,8 +149,8 @@ public final class Raycast {
         }
 
         Vector3d result = this.direction.mul(knockback);
-        final Vector3d targetVelocity = target.velocity().get();
 
+        final Vector3d targetVelocity = target.velocity().get();
         if (Math.abs(targetVelocity.dot(result)) > knockback && VectorUtil.angle(targetVelocity, result) > Math.PI / 3) {
             result = result.normalize().add(targetVelocity).mul(knockback);
         }
