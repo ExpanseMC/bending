@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
@@ -31,6 +32,7 @@ import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.persistence.DataQuery;
 import org.spongepowered.api.data.persistence.DataStore;
+import org.spongepowered.api.data.persistence.DataView;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
@@ -86,30 +88,37 @@ public final class BendingPlugin implements Bending {
     public void onRegisterData(final RegisterDataEvent event) {
         this.logger.info("Registering data...");
 
+        final DataStore store = DataStore.builder()
+                .pluginData(BendingKeys.ABILITY_HOTBAR.getKey())
+                .holder(Player.class, User.class)
+                .key(BendingKeys.ABILITY_HOTBAR,
+                        (outer, map) -> {
+                            final DataView view = outer.createView(DataQuery.of("AbilityHotbar"));
+                            for (final Map.Entry<Integer, Ability> entry : map.entrySet()) {
+                                view.set(DataQuery.of(entry.getKey().toString()), entry.getValue().key(BendingRegistryTypes.ABILITY));
+                            }
+                        },
+                        (outer) -> {
+                            final @Nullable DataView view = outer.getView(DataQuery.of("AbilityHotbar")).orElse(null);
+                            if (view == null) {
+                                return Optional.of(Map.of());
+                            }
+                            final Map<Integer, Ability> result = new HashMap<>();
+                            for (final DataQuery key : view.getKeys(false)) {
+                                view.getRegistryValue(key, BendingRegistryTypes.ABILITY).ifPresent(ability -> {
+                                    try {
+                                        result.put(Integer.parseInt(key.toString()), ability);
+                                    } catch (final NumberFormatException ignored) {
+                                    }
+                                });
+                            }
+                            return Optional.of(result);
+                        })
+                .build();
+
         event.register(DataRegistration.builder()
                 .dataKey(BendingKeys.ABILITY_HOTBAR)
-                .store(DataStore.builder()
-                        .pluginData(BendingKeys.ABILITY_HOTBAR.getKey())
-                        .holder(Player.class, User.class)
-                        .key(BendingKeys.ABILITY_HOTBAR,
-                                (view, map) -> {
-                                    for (final Map.Entry<Integer, Ability> entry : map.entrySet()) {
-                                        view.set(DataQuery.of(entry.getKey().toString()), entry.getValue().key(BendingRegistryTypes.ABILITY));
-                                    }
-                                },
-                                (view) -> {
-                                    final Map<Integer, Ability> result = new HashMap<>();
-                                    for (final DataQuery key : view.getKeys(false)) {
-                                        view.getRegistryValue(key, BendingRegistryTypes.ABILITY).ifPresent(ability -> {
-                                            try {
-                                                result.put(Integer.parseInt(key.toString()), ability);
-                                            } catch (final NumberFormatException ignored) {
-                                            }
-                                        });
-                                    }
-                                    return Optional.of(result);
-                                })
-                        .build())
+                .store(store)
                 .build());
     }
 
