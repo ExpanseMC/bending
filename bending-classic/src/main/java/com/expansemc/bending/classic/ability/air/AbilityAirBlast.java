@@ -57,9 +57,7 @@ public final class AbilityAirBlast {
     private static final class Start implements AbilityTaskExecutor {
 
         private static final Component VALID_CONTROLS = Component.text("Valid ability controls: ")
-                .append(SNEAK.get().name())
-                .append(Component.text(", "))
-                .append(PRIMARY.get().name());
+                .append(Component.join(Component.text(", "), PRIMARY.get().name(), SNEAK.get().name()));
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) throws AbilityException {
@@ -142,7 +140,7 @@ public final class AbilityAirBlast {
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) {
-            if (this.raycast.advance(current -> this.progress(cause, current))) {
+            if (this.raycast.advance((raycast, location) -> this.progress(raycast, location, cause))) {
                 // If the ray moved forward, continue advancing.
                 return AbilityTaskResult.repeat();
             } else {
@@ -151,14 +149,14 @@ public final class AbilityAirBlast {
             }
         }
 
-        private boolean progress(final AbilityCause cause, final ServerLocation current) {
-            this.raycast.affectLocations(this.affectedLocations, RADIUS, test -> {
-                // TODO
-                return true;
-            });
-            this.raycast.affectEntities(this.affectedEntities, RADIUS, test -> {
+        private boolean progress(final Raycast raycast, final ServerLocation current, final AbilityCause cause) {
+            raycast.affectLocations(this.affectedLocations, RADIUS, test ->
+//                    AirRaycast.extinguishFlames(test) || AirRaycast.toggleOpenable(test) || AirRaycast.togglePowerable(test));
+                    false); // TODO
+
+            raycast.affectEntities(this.affectedEntities, RADIUS, test -> {
                 // Ignore return value so we can push entities multiple times with the same ray.
-                this.raycast.pushEntity(cause.cause(), test, this.canPushSelf, KNOCKBACK_SELF, KNOCKBACK_OTHER);
+                raycast.pushEntity(cause.cause(), test, this.canPushSelf, KNOCKBACK_SELF, KNOCKBACK_OTHER);
 
                 return true;
             });
