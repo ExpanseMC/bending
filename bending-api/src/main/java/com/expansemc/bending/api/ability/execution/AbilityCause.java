@@ -60,6 +60,13 @@ public interface AbilityCause {
     Audience audience();
 
     /**
+     * The location of the {@link #cause()}.
+     *
+     * @return The location.
+     */
+    ServerLocation location();
+
+    /**
      * The target location of the {@link #cause()}, up to a maximum distance.
      *
      * @param maxDistance The maximum distance.

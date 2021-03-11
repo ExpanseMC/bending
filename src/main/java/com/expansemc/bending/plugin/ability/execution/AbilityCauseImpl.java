@@ -53,6 +53,13 @@ public final class AbilityCauseImpl implements AbilityCause {
     }
 
     @Override
+    public ServerLocation location() {
+        return this.cause.first(Locatable.class)
+                .map(Locatable::getServerLocation)
+                .orElseThrow(() -> new RuntimeException("Cause is not locatable!"));
+    }
+
+    @Override
     public ServerLocation targetLocation(final double maxDistance) {
         // TODO
         return null;
