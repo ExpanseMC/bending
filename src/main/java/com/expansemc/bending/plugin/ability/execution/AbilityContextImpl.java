@@ -16,7 +16,8 @@ public final class AbilityContextImpl implements AbilityContext {
 
     private final BenderImpl bender;
     private final AbilityCause cause;
-    private @Nullable ScheduledTask task;
+
+    private @Nullable ScheduledTask task = null;
 
     public AbilityContextImpl(final BenderImpl bender, final AbilityCause cause) {
         this.bender = bender;

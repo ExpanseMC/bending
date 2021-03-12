@@ -5,6 +5,7 @@ import com.expansemc.bending.api.ability.AbilityControl;
 import com.expansemc.bending.api.ability.execution.AbilityCause;
 import net.kyori.adventure.audience.Audience;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.Cause;
@@ -38,6 +39,12 @@ public final class AbilityCauseImpl implements AbilityCause {
     @Override
     public Cause cause() {
         return this.cause;
+    }
+
+    @Override
+    public DataHolder.Mutable dataHolder() {
+        return this.cause.first(DataHolder.Mutable.class)
+                .orElseThrow(() -> new RuntimeException("Cause has no data holder!"));
     }
 
     @Override

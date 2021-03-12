@@ -25,8 +25,8 @@ public class AbilityException extends ComponentMessageException {
         super(throwable);
     }
 
-    public final Component toComponent(final Supplier<? extends Component> defaultErrorMsg) {
-        return Objects.requireNonNullElseGet(this.componentMessage(), defaultErrorMsg)
+    public final Component toComponent(final Supplier<? extends Component> defaultErrorMessage) {
+        return Objects.requireNonNullElseGet(this.componentMessage(), defaultErrorMessage)
                 .colorIfAbsent(NamedTextColor.RED);
     }
 }

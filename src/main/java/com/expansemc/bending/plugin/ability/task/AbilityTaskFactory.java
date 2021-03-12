@@ -15,6 +15,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class AbilityTaskFactory implements AbilityTask.Factory {
@@ -67,6 +68,10 @@ public final class AbilityTaskFactory implements AbilityTask.Factory {
             );
         } catch (final AbilityException e) {
             context.cause().audience().sendMessage(e.toComponent(() -> DEFAULT_ERROR_MESSAGE.append(context.cause().ability().name())));
+            context.cancel();
+        } catch (final Exception e) {
+            context.cause().audience().sendMessage(
+                    Component.text(Objects.requireNonNullElse(e.getMessage(), "An error has occurred while running this ability.")));
             context.cancel();
         }
     }
@@ -150,6 +155,10 @@ public final class AbilityTaskFactory implements AbilityTask.Factory {
                 );
             } catch (final AbilityException e) {
                 this.context.cause().audience().sendMessage(e.toComponent(() -> DEFAULT_ERROR_MESSAGE.append(this.context.cause().ability().name())));
+                this.context.cancel();
+            } catch (final Exception e) {
+                this.context.cause().audience().sendMessage(
+                        Component.text(Objects.requireNonNullElse(e.getMessage(), "An error has occurred while running this ability.")));
                 this.context.cancel();
             }
         }

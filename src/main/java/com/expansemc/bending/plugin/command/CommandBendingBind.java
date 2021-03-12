@@ -17,7 +17,7 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 public final class CommandBendingBind implements CommandExecutor {
 
     private static final Parameter.Value<Ability> ABILITY_PARAMETER =
-            Parameter.registryElement(BendingTypeTokens.ABILITY_TOKEN, BendingRegistryTypes.ABILITY, "bending")
+            Parameter.registryElement(BendingTypeTokens.ABILITY_TOKEN, BendingRegistryTypes.ABILITY, "bending", "bending-classic")
                     .setKey("ability")
                     .build();
 

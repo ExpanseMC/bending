@@ -13,8 +13,8 @@ public final class AbilityTaskResultFactory implements AbilityTaskResult.Factory
     }
 
     @Override
-    public AbilityTaskResult end(final AbilityTask next) {
-        return new EndWith(next);
+    public AbilityTaskResult next(final AbilityTask next) {
+        return new Next(next);
     }
 
     @Override
@@ -40,11 +40,11 @@ public final class AbilityTaskResultFactory implements AbilityTaskResult.Factory
         }
     }
 
-    private static final class EndWith implements AbilityTaskResult {
+    private static final class Next implements AbilityTaskResult {
 
         private final AbilityTask task;
 
-        public EndWith(final AbilityTask task) {
+        public Next(final AbilityTask task) {
             this.task = task;
         }
 

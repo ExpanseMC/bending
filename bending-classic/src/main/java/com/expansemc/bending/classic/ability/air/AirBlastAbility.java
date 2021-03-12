@@ -8,13 +8,11 @@ import com.expansemc.bending.api.ability.task.AbilityTask;
 import com.expansemc.bending.api.ability.task.AbilityTaskExecutor;
 import com.expansemc.bending.api.ability.task.AbilityTaskResult;
 import com.expansemc.bending.api.ray.Raycast;
-import com.expansemc.bending.api.util.VectorUtil;
-import net.kyori.adventure.sound.Sound;
+import com.expansemc.bending.classic.ability.AirAbilities;
+import com.expansemc.bending.classic.ability.config.AirBlastConfig;
+import com.expansemc.bending.classic.util.AbilityUtil;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.effect.particle.ParticleEffect;
-import org.spongepowered.api.effect.particle.ParticleTypes;
-import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3d;
@@ -26,47 +24,35 @@ import java.util.UUID;
 import static com.expansemc.bending.api.ability.AbilityControls.PRIMARY;
 import static com.expansemc.bending.api.ability.AbilityControls.SNEAK;
 
-public final class AbilityAirBlast {
+public final class AirBlastAbility {
 
     public static final Ability ABILITY = Ability.builder()
             .name(Component.text("AirBlast"))
             .category(AbilityCategories.AIR)
-            .executor(AbilityTask.immediate(Start::new))
+            .executor(AbilityTask.immediate(() -> new Start(AirBlastConfig.DEFAULT)))
             .addControls(PRIMARY.get(), SNEAK.get())
             .build();
 
-    private static final ParticleEffect PARTICLE_EFFECT = ParticleEffect.builder()
-            .type(ParticleTypes.CLOUD)
-            .quantity(4)
-            .offset(VectorUtil.VECTOR_0_275)
-            .build();
+    //////////////////////////////////////////////////
+    // Ability Start
+    //////////////////////////////////////////////////
 
-    // TODO: Runtime configuration values
-    private static final double KNOCKBACK_OTHER = 1.6;
-    private static final double KNOCKBACK_SELF = 2.0;
-    private static final double RADIUS = 0.5;
-    private static final double RANGE = 20.0;
-    private static final double SELECT_RANGE = 10.0;
-    private static final double SPEED = 25.0;
-
-    private static final double SELECT_RANGE_SQUARED_PADDED = 2.25 * SELECT_RANGE * SELECT_RANGE;
-
-    /**
-     * Handles the initial logic of when the player activates AirBlast.
-     */
     private static final class Start implements AbilityTaskExecutor {
 
-        private static final Component VALID_CONTROLS = Component.text("Valid ability controls: ")
-                .append(Component.join(Component.text(", "), PRIMARY.get().name(), SNEAK.get().name()));
+        private final AirBlastConfig config;
+
+        public Start(final AirBlastConfig config) {
+            this.config = config;
+        }
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) throws AbilityException {
             if (cause.control() == SNEAK.get()) {
                 // Run the sneak task.
-                final ServerLocation origin = cause.targetLocation(SELECT_RANGE);
+                final ServerLocation origin = cause.targetLocation(this.config.selectRange());
                 final Vector3d direction = cause.headDirection();
 
-                return AbilityTaskResult.next(Sneak.task(origin, direction));
+                return AbilityTaskResult.next(sneak(this.config, origin, direction));
             } else if (cause.control() == PRIMARY.get()) {
                 // Run the primary task.
                 final ServerLocation origin = cause.eyeLocation();
@@ -76,71 +62,79 @@ public final class AbilityAirBlast {
                     // End immediately if in a liquid.
                     return AbilityTaskResult.end();
                 } else {
-                    return AbilityTaskResult.next(Primary.task(origin, direction, false));
+                    return AbilityTaskResult.next(blast(this.config, origin, direction, false));
                 }
             } else {
-                throw new AbilityException(VALID_CONTROLS);
+                throw new AbilityException(AbilityUtil.validControlsError(ABILITY));
             }
         }
     }
 
-    /**
-     * Handles when the player sneaks to activate AirBlast.
-     */
+    //////////////////////////////////////////////////
+    // Ability Sneaking
+    //////////////////////////////////////////////////
+
+    private static AbilityTask sneak(final AirBlastConfig config, final ServerLocation origin, final Vector3d direction) {
+        return AbilityTask.repeatingUntil(
+                PRIMARY.get(), blast(config, origin, direction, true),
+                Ticks.single(), () -> new Sneak(config, origin)
+        );
+    }
+
     private static final class Sneak implements AbilityTaskExecutor {
 
-        private static AbilityTask task(final ServerLocation origin, final Vector3d direction) {
-            return AbilityTask.repeatingUntil(
-                    PRIMARY.get(),
-                    Primary.task(origin, direction, true),
-                    Ticks.single(),
-                    () -> new Sneak(origin)
-            );
-        }
-
+        private final AirBlastConfig config;
         private final ServerLocation origin;
 
-        public Sneak(final ServerLocation origin) {
+        public Sneak(final AirBlastConfig config, final ServerLocation origin) {
+            this.config = config;
             this.origin = origin;
         }
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) {
-            if (this.origin.getPosition().distanceSquared(cause.eyePosition()) > SELECT_RANGE_SQUARED_PADDED) {
+            if (this.origin.getPosition().distanceSquared(cause.eyePosition()) > this.config.selectRangeSquaredPadded()) {
                 // Beyond selection range.
                 return AbilityTaskResult.end();
             }
 
             // Pretty!
-            this.origin.getWorld().spawnParticles(PARTICLE_EFFECT, this.origin.getPosition());
+            this.origin.getWorld().spawnParticles(this.config.rayParticle(), this.origin.getPosition());
 
             return AbilityTaskResult.repeat();
         }
     }
 
-    /**
-     * Handles when the player primary/left clicks to activate AirBlast.
-     */
-    private static final class Primary implements AbilityTaskExecutor {
+    //////////////////////////////////////////////////
+    // Ability Blast
+    //////////////////////////////////////////////////
 
-        private static AbilityTask task(final ServerLocation origin, final Vector3d direction, final boolean canPushSelf) {
-            return AbilityTask.repeating(Ticks.single(), () -> new Primary(origin, direction, canPushSelf));
-        }
+    private static AbilityTask blast(final AirBlastConfig config,
+                                     final ServerLocation origin, final Vector3d direction,
+                                     final boolean canPushSelf) {
+        return AbilityTask.repeating(Ticks.single(), () -> new Blast(config, origin, direction, canPushSelf));
+    }
 
+    private static final class Blast implements AbilityTaskExecutor {
+
+        private final AirBlastConfig config;
         private final boolean canPushSelf;
         private final Raycast raycast;
 
         private final Set<ServerLocation> affectedLocations = new HashSet<>();
         private final Set<UUID> affectedEntities = new HashSet<>();
 
-        private Primary(final ServerLocation origin, final Vector3d direction, final boolean canPushSelf) {
+        private Blast(final AirBlastConfig config,
+                      final ServerLocation origin, final Vector3d direction,
+                      final boolean canPushSelf) {
+            this.config = config;
             this.canPushSelf = canPushSelf;
-            this.raycast = new Raycast(origin, direction, RANGE, SPEED, true);
+            this.raycast = new Raycast(origin, direction, this.config.range(), this.config.speed(), true);
         }
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) {
-            if (this.raycast.advance((raycast, location) -> this.progress(raycast, location, cause))) {
+            if (this.raycast.advance((raycast, current) -> this.progress(raycast, current, cause))) {
                 // If the ray moved forward, continue advancing.
                 return AbilityTaskResult.repeat();
             } else {
@@ -150,23 +144,23 @@ public final class AbilityAirBlast {
         }
 
         private boolean progress(final Raycast raycast, final ServerLocation current, final AbilityCause cause) {
-            raycast.affectLocations(this.affectedLocations, RADIUS, test ->
+            raycast.affectLocations(this.affectedLocations, this.config.radius(), test ->
 //                    AirRaycast.extinguishFlames(test) || AirRaycast.toggleOpenable(test) || AirRaycast.togglePowerable(test));
                     false); // TODO
 
-            raycast.affectEntities(this.affectedEntities, RADIUS, test -> {
+            raycast.affectEntities(this.affectedEntities, this.config.radius(), test -> {
                 // Ignore return value so we can push entities multiple times with the same ray.
-                raycast.pushEntity(cause.cause(), test, this.canPushSelf, KNOCKBACK_SELF, KNOCKBACK_OTHER);
+                raycast.pushEntity(cause.cause(), test, this.canPushSelf, this.config.knockbackSelf(), this.config.knockbackOther());
 
                 return true;
             });
 
             // Pretty!
-            current.getWorld().spawnParticles(PARTICLE_EFFECT, current.getPosition());
+            current.getWorld().spawnParticles(this.config.rayParticle(), current.getPosition());
 
             if (Math.random() < 0.20) {
                 // Add some sound every now and then.
-                cause.audience().playSound(Sound.sound(SoundTypes.ENTITY_CREEPER_HURT, Sound.Source.PLAYER, 1.0f, 1.0f));
+                cause.audience().playSound(AirAbilities.SOUND);
             }
 
             // End if the current block is solid or liquid.

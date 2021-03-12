@@ -25,7 +25,7 @@ public interface AbilityTaskResult {
      * @return The result.
      */
     static AbilityTaskResult next(final AbilityTask next) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).end(next);
+        return Sponge.getGame().getFactoryProvider().provide(Factory.class).next(next);
     }
 
     /**
@@ -66,7 +66,7 @@ public interface AbilityTaskResult {
         /**
          * @see AbilityTaskResult#next(AbilityTask)
          */
-        AbilityTaskResult end(AbilityTask next);
+        AbilityTaskResult next(AbilityTask next);
 
         /**
          * @see AbilityTaskResult#repeat()

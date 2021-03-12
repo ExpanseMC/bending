@@ -6,6 +6,8 @@ import com.expansemc.bending.api.util.VectorUtil;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3d;
 
@@ -157,6 +159,17 @@ public final class Raycast {
 
         target.offer(Keys.VELOCITY, result);
         return true;
+    }
+
+    public final boolean damageEntity(final Cause source, final Entity test, final double damage) {
+        return this.damageEntity(source, test, damage, DamageSources.GENERIC);
+    }
+
+    public final boolean damageEntity(final Cause source, final Entity test, final double damage, final DamageSource damageSource) {
+        if (!source.contains(test) && damage > 0) {
+            return test.damage(damage, damageSource);
+        }
+        return false;
     }
 
     public final ServerLocation origin() {

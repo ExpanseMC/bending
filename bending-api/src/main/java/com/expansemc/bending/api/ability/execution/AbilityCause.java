@@ -4,6 +4,8 @@ import com.expansemc.bending.api.ability.Ability;
 import com.expansemc.bending.api.ability.AbilityControl;
 import net.kyori.adventure.audience.Audience;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.Key;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.permission.Subject;
@@ -44,6 +46,14 @@ public interface AbilityCause {
      * @return The cause.
      */
     Cause cause();
+
+    /**
+     * The {@link DataHolder.Mutable} that should be used for data {@link Key}
+     * querying/updating.
+     *
+     * @return The data holder.
+     */
+    DataHolder.Mutable dataHolder();
 
     /**
      * The {@link Subject} that should be used for permission checks.
