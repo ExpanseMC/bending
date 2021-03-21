@@ -16,8 +16,8 @@ public final class AbilityHudListener {
     @Listener
     public void onChangeHeld(final ChangeInventoryEvent.Held event,
                              @First final ServerPlayer player) {
-        final int oldIndex = event.getOriginalSlot().require(Keys.SLOT_INDEX);
-        final int newIndex = event.getFinalSlot().require(Keys.SLOT_INDEX);
+        final int oldIndex = event.originalSlot().require(Keys.SLOT_INDEX);
+        final int newIndex = event.finalSlot().require(Keys.SLOT_INDEX);
 
         if (oldIndex != newIndex) {
             final @Nullable Ability ability = player.getOrElse(BendingKeys.ABILITY_HOTBAR, Map.of())

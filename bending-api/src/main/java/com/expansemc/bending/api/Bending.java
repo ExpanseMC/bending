@@ -8,7 +8,7 @@ import org.spongepowered.plugin.PluginContainer;
 public interface Bending {
 
     static Bending get() {
-        return Sponge.getGame().getFactoryProvider().provide(Bending.class);
+        return Sponge.game().factoryProvider().provide(Bending.class);
     }
 
     Logger logger();

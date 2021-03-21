@@ -19,6 +19,24 @@ public class AbilityControlImpl implements AbilityControl {
         return this.name;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (this.getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AbilityControlImpl that = (AbilityControlImpl) o;
+        return this.name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name);
+    }
+
     public static final class BuilderImpl implements AbilityControl.Builder {
 
         private @Nullable Component name;

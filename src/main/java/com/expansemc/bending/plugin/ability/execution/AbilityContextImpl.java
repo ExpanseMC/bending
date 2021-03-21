@@ -41,7 +41,7 @@ public final class AbilityContextImpl implements AbilityContext {
 
     @Override
     public void setTask(final Task task) {
-        this.task = Sponge.getServer().getScheduler().submit(task);
+        this.task = Sponge.server().scheduler().submit(task);
     }
 
     @Override
@@ -55,8 +55,7 @@ public final class AbilityContextImpl implements AbilityContext {
 
     @Override
     public Completion defer(final AbilityControl control) {
-        // TODO
-        return null;
+        return this.bender.defer(this.cause().ability(), control);
     }
 
     @Override

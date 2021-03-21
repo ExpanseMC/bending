@@ -23,7 +23,7 @@ public interface AbilityTask extends AbilityExecutor {
      * @return The new ability task.
      */
     static AbilityTask immediate(final Supplier<AbilityTaskExecutor> executor) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).immediate(executor);
+        return Sponge.game().factoryProvider().provide(Factory.class).immediate(executor);
     }
 
     /**
@@ -35,7 +35,7 @@ public interface AbilityTask extends AbilityExecutor {
      * @return The new ability task.
      */
     static AbilityTask nextTick(final Supplier<AbilityTaskExecutor> executor) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).nextTick(executor);
+        return Sponge.game().factoryProvider().provide(Factory.class).nextTick(executor);
     }
 
     /**
@@ -48,7 +48,7 @@ public interface AbilityTask extends AbilityExecutor {
      * @return The new ability task.
      */
     static AbilityTask delayed(final Ticks delay, final Supplier<AbilityTaskExecutor> executor) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).delayed(delay, executor);
+        return Sponge.game().factoryProvider().provide(Factory.class).delayed(delay, executor);
     }
 
     /**
@@ -63,7 +63,7 @@ public interface AbilityTask extends AbilityExecutor {
      * @return The new ability task.
      */
     static AbilityTask repeating(final Ticks interval, final Supplier<AbilityTaskExecutor> executor) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).repeating(interval, executor);
+        return Sponge.game().factoryProvider().provide(Factory.class).repeating(interval, executor);
     }
 
     /**
@@ -83,7 +83,7 @@ public interface AbilityTask extends AbilityExecutor {
      */
     static AbilityTask repeatingUntil(final AbilityControl control, final AbilityExecutor onControl,
                                       final Ticks interval, final Supplier<AbilityTaskExecutor> executor) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).repeatingUntil(control, onControl, interval, executor);
+        return Sponge.game().factoryProvider().provide(Factory.class).repeatingUntil(control, onControl, interval, executor);
     }
 
     @Override

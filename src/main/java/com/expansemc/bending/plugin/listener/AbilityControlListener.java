@@ -33,9 +33,9 @@ import java.util.Optional;
 public final class AbilityControlListener {
 
     public static final EventListener<ChangeDataHolderEvent.ValueChange> ON_SNEAK = event -> {
-        final ServerPlayer player = event.getCause().first(ServerPlayer.class).get();
+        final ServerPlayer player = event.cause().first(ServerPlayer.class).get();
 
-        final @Nullable Boolean isSneaking = getData(Keys.IS_SNEAKING, event.getEndResult().getSuccessfulData());
+        final @Nullable Boolean isSneaking = getData(Keys.IS_SNEAKING, event.endResult().successfulData());
         if (!Objects.requireNonNullElse(isSneaking, false)) {
             // Only handle sneaking.
             return;
@@ -44,7 +44,7 @@ public final class AbilityControlListener {
         currentAbility(player).ifPresent(ability -> {
             player.sendActionBar(Component.text("SNEAK"));
 
-            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SNEAK.get(), event.getCause());
+            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SNEAK.get(), event.cause());
             final Bender bender = Bender.player(player);
 
             bender.execute(cause);
@@ -54,18 +54,18 @@ public final class AbilityControlListener {
     @Listener
     public void onFall(final DamageEntityEvent event,
                        @First final DamageSource source,
-                       @Getter("getEntity") final ServerPlayer player) {
-        if (source.getType() != DamageTypes.FALL.get()) {
+                       @Getter("entity") final ServerPlayer player) {
+        if (source.type() != DamageTypes.FALL.get()) {
             return;
         }
 
-        try (final CauseStackManager.StackFrame frame = Sponge.getServer().getCauseStackManager().pushCauseFrame()) {
+        try (final CauseStackManager.StackFrame frame = Sponge.server().causeStackManager().pushCauseFrame()) {
             frame.addContext(BendingEventContextKeys.FALL_DISTANCE, player.fallDistance().get());
 
             currentAbility(player).ifPresent(ability -> {
                 player.sendActionBar(Component.text("FALL"));
 
-                final AbilityCause cause = AbilityCause.of(ability, AbilityControls.FALL.get(), frame.getCurrentCause());
+                final AbilityCause cause = AbilityCause.of(ability, AbilityControls.FALL.get(), frame.currentCause());
                 final Bender bender = Bender.player(player);
 
                 bender.execute(cause);
@@ -79,7 +79,7 @@ public final class AbilityControlListener {
         currentAbility(player).ifPresent(ability -> {
             player.sendActionBar(Component.text("PRIMARY-item"));
 
-            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.getCause());
+            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.cause());
             final Bender bender = Bender.player(player);
 
             bender.execute(cause);
@@ -92,7 +92,7 @@ public final class AbilityControlListener {
         currentAbility(player).ifPresent(ability -> {
             player.sendActionBar(Component.text("PRIMARY-entity"));
 
-            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.getCause());
+            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.PRIMARY.get(), event.cause());
             final Bender bender = Bender.player(player);
 
             bender.execute(cause);
@@ -105,7 +105,7 @@ public final class AbilityControlListener {
         currentAbility(player).ifPresent(ability -> {
             player.sendActionBar(Component.text("SECONDARY"));
 
-            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SECONDARY.get(), event.getCause());
+            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SECONDARY.get(), event.cause());
             final Bender bender = Bender.player(player);
 
             bender.execute(cause);
@@ -114,8 +114,8 @@ public final class AbilityControlListener {
 
     @Listener
     public void onSneak(final ChangeDataHolderEvent.ValueChange event,
-                        @Getter("getTargetHolder") final ServerPlayer player) {
-        final @Nullable Boolean isSneaking = getData(Keys.IS_SNEAKING, event.getEndResult().getSuccessfulData());
+                        @Getter("targetHolder") final ServerPlayer player) {
+        final @Nullable Boolean isSneaking = getData(Keys.IS_SNEAKING, event.endResult().successfulData());
         if (!Objects.requireNonNullElse(isSneaking, false)) {
             // Only handle sneaking.
             return;
@@ -124,7 +124,7 @@ public final class AbilityControlListener {
         currentAbility(player).ifPresent(ability -> {
             player.sendActionBar(Component.text("SNEAK"));
 
-            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SNEAK.get(), event.getCause());
+            final AbilityCause cause = AbilityCause.of(ability, AbilityControls.SNEAK.get(), event.cause());
             final Bender bender = Bender.player(player);
 
             bender.execute(cause);
@@ -134,7 +134,7 @@ public final class AbilityControlListener {
     @SuppressWarnings("unchecked")
     private static <T> @Nullable T getData(final Key<Value<T>> key, final List<Value.Immutable<?>> values) {
         for (final Value.Immutable<?> value : values) {
-            if (value.getKey() == key) {
+            if (value.key() == key) {
                 return (T) value.get();
             }
         }
@@ -142,8 +142,7 @@ public final class AbilityControlListener {
     }
 
     private static Optional<Ability> currentAbility(final ServerPlayer player) {
-        final int selectedSlotIndex = player.getInventory().getHotbar()
-                .getSelectedSlotIndex();
+        final int selectedSlotIndex = player.inventory().hotbar().selectedSlotIndex();
         final Ability ability = player.getOrElse(BendingKeys.ABILITY_HOTBAR, Map.of())
                 .get(selectedSlotIndex);
         return Optional.ofNullable(ability);

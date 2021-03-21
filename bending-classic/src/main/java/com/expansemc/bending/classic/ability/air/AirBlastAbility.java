@@ -58,7 +58,7 @@ public final class AirBlastAbility {
                 final ServerLocation origin = cause.eyeLocation();
                 final Vector3d direction = cause.headDirection();
 
-                if (!origin.getFluid().isEmpty()) {
+                if (!origin.fluid().isEmpty()) {
                     // End immediately if in a liquid.
                     return AbilityTaskResult.end();
                 } else {
@@ -93,13 +93,13 @@ public final class AirBlastAbility {
 
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) {
-            if (this.origin.getPosition().distanceSquared(cause.eyePosition()) > this.config.selectRangeSquaredPadded()) {
+            if (this.origin.position().distanceSquared(cause.eyePosition()) > this.config.selectRangeSquaredPadded()) {
                 // Beyond selection range.
                 return AbilityTaskResult.end();
             }
 
             // Pretty!
-            this.origin.getWorld().spawnParticles(this.config.rayParticle(), this.origin.getPosition());
+            this.origin.world().spawnParticles(this.config.rayParticle(), this.origin.position());
 
             return AbilityTaskResult.repeat();
         }
@@ -156,7 +156,7 @@ public final class AirBlastAbility {
             });
 
             // Pretty!
-            current.getWorld().spawnParticles(this.config.rayParticle(), current.getPosition());
+            current.world().spawnParticles(this.config.rayParticle(), current.position());
 
             if (Math.random() < 0.20) {
                 // Add some sound every now and then.
@@ -164,7 +164,7 @@ public final class AirBlastAbility {
             }
 
             // End if the current block is solid or liquid.
-            return !current.getOrElse(Keys.IS_SOLID, false) && current.getFluid().isEmpty();
+            return !current.getOrElse(Keys.IS_SOLID, false) && current.fluid().isEmpty();
         }
     }
 }

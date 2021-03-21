@@ -15,7 +15,7 @@ public interface AbilityTaskResult {
      * @return The result.
      */
     static AbilityTaskResult end() {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).end();
+        return Sponge.game().factoryProvider().provide(Factory.class).end();
     }
 
     /**
@@ -25,7 +25,7 @@ public interface AbilityTaskResult {
      * @return The result.
      */
     static AbilityTaskResult next(final AbilityTask next) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).next(next);
+        return Sponge.game().factoryProvider().provide(Factory.class).next(next);
     }
 
     /**
@@ -34,7 +34,7 @@ public interface AbilityTaskResult {
      * @return The result.
      */
     static AbilityTaskResult repeat() {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).repeat();
+        return Sponge.game().factoryProvider().provide(Factory.class).repeat();
     }
 
     /**

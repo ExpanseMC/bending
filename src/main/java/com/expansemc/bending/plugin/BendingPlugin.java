@@ -25,6 +25,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
@@ -48,6 +49,8 @@ import org.spongepowered.plugin.jvm.Plugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Plugin("bending")
 public final class BendingPlugin implements Bending {
@@ -93,38 +96,55 @@ public final class BendingPlugin implements Bending {
     public void onRegisterData(final RegisterDataEvent event) {
         this.logger.info("Registering data...");
 
-        final DataStore store = DataStore.builder()
-                .pluginData(BendingKeys.ABILITY_HOTBAR.getKey())
+        final DataStore storeAbilityHotbar = DataStore.builder()
+                .pluginData(Bending.key("ability"))
                 .holder(Player.class, User.class)
-                .key(BendingKeys.ABILITY_HOTBAR,
-                        (outer, map) -> {
-                            final DataView view = outer.createView(DataQuery.of("AbilityHotbar"));
-                            for (final Map.Entry<Integer, Ability> entry : map.entrySet()) {
-                                view.set(DataQuery.of(entry.getKey().toString()), entry.getValue().key(BendingRegistryTypes.ABILITY));
-                            }
-                        },
-                        (outer) -> {
-                            final @Nullable DataView view = outer.getView(DataQuery.of("AbilityHotbar")).orElse(null);
-                            if (view == null) {
-                                return Optional.of(Map.of());
-                            }
-                            final Map<Integer, Ability> result = new HashMap<>();
-                            for (final DataQuery key : view.getKeys(false)) {
-                                view.getRegistryValue(key, BendingRegistryTypes.ABILITY).ifPresent(ability -> {
-                                    try {
-                                        result.put(Integer.parseInt(key.toString()), ability);
-                                    } catch (final NumberFormatException ignored) {
-                                    }
-                                });
-                            }
-                            return Optional.of(result);
-                        })
+                .key(BendingKeys.ABILITY_HOTBAR, this::storeAbilityHotbar, this::loadAbilityHotbar)
+                .key(BendingKeys.PASSIVE_ABILITIES, this::storePassiveAbilities, this::loadPassiveAbilities)
                 .build();
 
         event.register(DataRegistration.builder()
                 .dataKey(BendingKeys.ABILITY_HOTBAR)
-                .store(store)
+                .store(storeAbilityHotbar)
                 .build());
+    }
+
+    private void storeAbilityHotbar(final DataView outer, final Map<Integer, Ability> map) {
+        final DataView view = outer.createView(DataQuery.of("AbilityHotbar"));
+        for (final Map.Entry<Integer, Ability> entry : map.entrySet()) {
+            view.set(DataQuery.of(entry.getKey().toString()), entry.getValue().key(BendingRegistryTypes.ABILITY));
+        }
+    }
+
+    private Optional<Map<Integer, Ability>> loadAbilityHotbar(final DataView outer) {
+        final @Nullable DataView view = outer.getView(DataQuery.of("AbilityHotbar")).orElse(null);
+        if (view == null) {
+            return Optional.of(Map.of());
+        }
+        final Map<Integer, Ability> result = new HashMap<>();
+        for (final DataQuery key : view.keys(false)) {
+            view.getRegistryValue(key, BendingRegistryTypes.ABILITY).ifPresent(ability -> {
+                try {
+                    result.put(Integer.parseInt(key.toString()), ability);
+                } catch (final NumberFormatException ignored) {
+                }
+            });
+        }
+        return Optional.of(result);
+    }
+
+    private void storePassiveAbilities(final DataView view, final Set<Ability> list) {
+        final Set<ResourceKey> keys = list.stream()
+                .flatMap(ability -> ability.findKey(BendingRegistryTypes.ABILITY).stream())
+                .collect(Collectors.toSet());
+        view.set(DataQuery.of("PassiveAbilities"), keys);
+    }
+
+    private Optional<Set<Ability>> loadPassiveAbilities(final DataView view) {
+        return view.getResourceKeyList(DataQuery.of("PassiveAbilities"))
+                .map(keys -> keys.stream()
+                        .flatMap(key -> BendingRegistryTypes.ABILITY.get().findValue(key).stream())
+                        .collect(Collectors.toSet()));
     }
 
     @Listener
@@ -139,6 +159,7 @@ public final class BendingPlugin implements Bending {
         ));
         event.register(BendingRegistryTypes.ABILITY_CONTROL.location(), true, () -> Map.of(
                 Bending.key("fall"), AbilityControl.of(Component.text("Fall")),
+                Bending.key("passive"), AbilityControl.of(Component.text("Passive")),
                 Bending.key("primary"), AbilityControl.of(Component.keybind("key.attack")),
                 Bending.key("secondary"), AbilityControl.of(Component.keybind("key.use")),
                 Bending.key("sneak"), AbilityControl.of(Component.keybind("key.sneak"))
@@ -150,10 +171,10 @@ public final class BendingPlugin implements Bending {
     public void onStartingServer(final StartingEngineEvent<Server> event) {
         this.logger.info("Registering listeners...");
 
-        Sponge.getEventManager().registerListeners(this.container, new AbilityControlListener());
+        Sponge.eventManager().registerListeners(this.container, new AbilityControlListener());
         Keys.IS_SNEAKING.registerEvent(this.container, Player.class, AbilityControlListener.ON_SNEAK);
-        Sponge.getEventManager().registerListeners(this.container, new AbilityHudListener());
-        Sponge.getEventManager().registerListeners(this.container, BenderFactory.INSTANCE);
+        Sponge.eventManager().registerListeners(this.container, new AbilityHudListener());
+        Sponge.eventManager().registerListeners(this.container, BenderFactory.INSTANCE);
     }
 
     @Override

@@ -116,7 +116,7 @@ public final class AirSwipeAbility {
             if (this.fullyCharged) {
                 // Let the player know they have fully charged the ability by showing particles.
                 final ServerLocation location = cause.eyeLocation();
-                location.getWorld().spawnParticles(this.config.chargingParticle(), location.getPosition());
+                location.world().spawnParticles(this.config.chargingParticle(), location.position());
             }
 
             return AbilityTaskResult.repeat();
@@ -161,7 +161,7 @@ public final class AirSwipeAbility {
         }
 
         private boolean progress(final Raycast raycast, final ServerLocation current, final AbilityCause cause) {
-            if (current.getOrElse(Keys.IS_SOLID, false) || !current.getFluid().isEmpty()) {
+            if (current.getOrElse(Keys.IS_SOLID, false) || !current.fluid().isEmpty()) {
                 // End if the current block is solid or liquid.
                 return false;
             }
@@ -174,7 +174,7 @@ public final class AirSwipeAbility {
             });
 
             // Pretty!
-            current.getWorld().spawnParticles(this.config.rayParticle(), current.getPosition());
+            current.world().spawnParticles(this.config.rayParticle(), current.position());
 
             if (Math.random() < 0.15) {
                 // Add some sound every now and then.

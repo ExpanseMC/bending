@@ -11,7 +11,7 @@ public interface AbilityControl extends DefaultedRegistryValue {
     }
 
     static Builder builder() {
-        return Sponge.getGame().getBuilderProvider().provide(Builder.class);
+        return Sponge.game().builderProvider().provide(Builder.class);
     }
 
     Component name();

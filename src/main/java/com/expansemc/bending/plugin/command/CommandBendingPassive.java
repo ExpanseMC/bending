@@ -1,6 +1,7 @@
 package com.expansemc.bending.plugin.command;
 
 import com.expansemc.bending.api.ability.Ability;
+import com.expansemc.bending.api.ability.AbilityControls;
 import com.expansemc.bending.api.data.BendingKeys;
 import com.expansemc.bending.api.registry.BendingRegistryTypes;
 import com.expansemc.bending.api.util.BendingTypeTokens;
@@ -14,7 +15,9 @@ import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
-public final class CommandBendingBind implements CommandExecutor {
+import java.util.Set;
+
+public final class CommandBendingPassive implements CommandExecutor {
 
     private static final Parameter.Value<Ability> ABILITY_PARAMETER =
             Parameter.registryElement(BendingTypeTokens.ABILITY_TOKEN, BendingRegistryTypes.ABILITY, "bending", "bending-classic")
@@ -23,21 +26,27 @@ public final class CommandBendingBind implements CommandExecutor {
 
     public static final Command.Parameterized COMMAND = Command.builder()
             .addParameter(ABILITY_PARAMETER)
-            .executor(new CommandBendingBind())
+            .executor(new CommandBendingPassive())
             .build();
 
     @Override
     public CommandResult execute(final CommandContext context) throws CommandException {
         final Ability ability = context.requireOne(ABILITY_PARAMETER);
 
+        if (!ability.controls().contains(AbilityControls.PASSIVE.get())) {
+            throw new CommandException(Component.text("That is not a passive ability."));
+        }
+
         final ServerPlayer player = context.cause().first(ServerPlayer.class)
                 .orElseThrow(() -> new CommandException(Component.text("Must be a player to use this command.")));
 
-        final int selectedSlotIndex = player.inventory().hotbar().selectedSlotIndex();
-        player.offerSingle(BendingKeys.ABILITY_HOTBAR, selectedSlotIndex, ability);
-
-        player.sendMessage(Component.text("Selected ability: ", NamedTextColor.GREEN)
-                .append(ability.name()));
+        if (player.getOrElse(BendingKeys.PASSIVE_ABILITIES, Set.of()).contains(ability)) {
+            context.cause().audience().sendMessage(Component.text("Added passive: ", NamedTextColor.GREEN).append(ability.name()));
+            player.removeSingle(BendingKeys.PASSIVE_ABILITIES, ability);
+        } else {
+            context.cause().audience().sendMessage(Component.text("Removed passive: ", NamedTextColor.GREEN).append(ability.name()));
+            player.offerSingle(BendingKeys.PASSIVE_ABILITIES, ability);
+        }
 
         return CommandResult.success();
     }

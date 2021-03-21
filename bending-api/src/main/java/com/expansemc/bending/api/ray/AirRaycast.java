@@ -17,7 +17,7 @@ public final class AirRaycast {
      * @return True if the fire was extinguished, false otherwise.
      */
     public static boolean extinguishFlames(final ServerLocation test) {
-        return test.getBlockType().isAnyOf(BlockTypes.FIRE.get(), BlockTypes.SOUL_FIRE.get())
+        return test.blockType().isAnyOf(BlockTypes.FIRE.get(), BlockTypes.SOUL_FIRE.get())
                 && test.removeBlock();
     }
 

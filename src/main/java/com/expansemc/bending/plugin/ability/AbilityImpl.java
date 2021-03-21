@@ -45,6 +45,27 @@ public final class AbilityImpl implements Ability {
         return this.executor;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (this.getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AbilityImpl ability = (AbilityImpl) o;
+        return this.name.equals(ability.name)
+                && this.controls.equals(ability.controls)
+                && this.category.equals(ability.category)
+                && this.executor.equals(ability.executor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name, this.controls, this.category, this.executor);
+    }
+
     public static final class BuilderImpl implements Ability.Builder {
 
         private @Nullable Component name;

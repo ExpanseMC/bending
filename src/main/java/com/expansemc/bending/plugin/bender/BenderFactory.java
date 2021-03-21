@@ -24,7 +24,7 @@ public final class BenderFactory implements Bender.Factory {
     @Override
     public Bender player(final ServerPlayer player) {
         //noinspection ConstantConditions
-        return Objects.requireNonNull(this.playerCache.get(player.getUniqueId(), BenderImpl::new));
+        return Objects.requireNonNull(this.playerCache.get(player.uniqueId(), BenderImpl::new));
     }
 
     @Override
@@ -38,8 +38,8 @@ public final class BenderFactory implements Bender.Factory {
 
     @Listener
     public void onDisconnect(final ServerSideConnectionEvent.Disconnect event) {
-        final @Nullable BenderImpl bender = this.playerCache.getIfPresent(event.getPlayer().getUniqueId());
-        this.playerCache.invalidate(event.getPlayer().getUniqueId());
+        final @Nullable BenderImpl bender = this.playerCache.getIfPresent(event.player().uniqueId());
+        this.playerCache.invalidate(event.player().uniqueId());
 
         if (bender != null) {
             bender.cancelAll();

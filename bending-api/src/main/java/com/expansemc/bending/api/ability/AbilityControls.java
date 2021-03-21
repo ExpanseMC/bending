@@ -8,6 +8,8 @@ public final class AbilityControls {
 
     public static final DefaultedRegistryReference<AbilityControl> FALL = control("fall");
 
+    public static final DefaultedRegistryReference<AbilityControl> PASSIVE = control("passive");
+
     public static final DefaultedRegistryReference<AbilityControl> PRIMARY = control("primary");
 
     public static final DefaultedRegistryReference<AbilityControl> SECONDARY = control("secondary");

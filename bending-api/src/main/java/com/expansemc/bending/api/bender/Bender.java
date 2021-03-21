@@ -11,11 +11,11 @@ import java.util.Optional;
 public interface Bender {
 
     static Bender player(final ServerPlayer player) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).player(player);
+        return Sponge.game().factoryProvider().provide(Factory.class).player(player);
     }
 
     static Bender entity(final Entity entity) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).entity(entity);
+        return Sponge.game().factoryProvider().provide(Factory.class).entity(entity);
     }
 
     Optional<AbilityContext> execute(AbilityCause cause);

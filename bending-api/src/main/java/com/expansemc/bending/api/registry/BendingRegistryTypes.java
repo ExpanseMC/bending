@@ -22,7 +22,7 @@ public final class BendingRegistryTypes {
 
     private static <T>DefaultedRegistryType<T> registryType(final String value) {
         return RegistryType.of(RegistryRoots.SPONGE, Bending.key(value))
-                .asDefaultedType(() -> Sponge.getGame().registries());
+                .asDefaultedType(() -> Sponge.game().registries());
     }
 
     private BendingRegistryTypes() {

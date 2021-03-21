@@ -36,6 +36,26 @@ public final class AbilityCategoryImpl implements AbilityCategory {
         return this.color;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (this.getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AbilityCategoryImpl that = (AbilityCategoryImpl) o;
+        return this.name.equals(that.name)
+                && Objects.equals(this.parent, that.parent)
+                && this.color.equals(that.color);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name, this.parent, this.color);
+    }
+
     public static final class BuilderImpl implements AbilityCategory.Builder {
 
         private @Nullable Component name;

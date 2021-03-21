@@ -19,11 +19,11 @@ import org.spongepowered.math.vector.Vector3d;
 public interface AbilityCause {
 
     static AbilityCause current(final Ability ability, final AbilityControl control) {
-        return of(ability, control, Sponge.getServer().getCauseStackManager().getCurrentCause());
+        return of(ability, control, Sponge.server().causeStackManager().currentCause());
     }
 
     static AbilityCause of(final Ability ability, final AbilityControl control, final Cause cause) {
-        return Sponge.getGame().getFactoryProvider().provide(Factory.class).of(ability, control, cause);
+        return Sponge.game().factoryProvider().provide(Factory.class).of(ability, control, cause);
     }
 
     /**
@@ -88,7 +88,7 @@ public interface AbilityCause {
      * The location of the {@link #cause()}'s eye.
      *
      * <p>If the cause has no such eye location,
-     * {@link Locatable#getServerLocation()} will be used instead.</p>
+     * {@link Locatable#serverLocation()} will be used instead.</p>
      *
      * @return The eye location.
      */
@@ -98,8 +98,8 @@ public interface AbilityCause {
      * The position of the {@link #cause()}'s eye.
      *
      * <p>If the cause has no such eye location,
-     * {@link Locatable#getServerLocation()} and
-     * {@link ServerLocation#getPosition()} will be used instead.</p>
+     * {@link Locatable#serverLocation()}q and
+     * {@link ServerLocation#position()} will be used instead.</p>
      *
      * @return The eye position.
      */
@@ -109,7 +109,7 @@ public interface AbilityCause {
      * The direction of the {@link #cause()}'s head.
      *
      * <p>If the cause has no such head direction,
-     * {@link Entity#getDirection()} will be used instead.</p>
+     * {@link Entity#direction()} will be used instead.</p>
      *
      * @return The head direction.
      */

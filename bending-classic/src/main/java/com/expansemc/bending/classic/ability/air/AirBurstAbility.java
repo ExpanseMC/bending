@@ -52,12 +52,12 @@ public final class AirBurstAbility {
         @Override
         public AbilityTaskResult execute(final AbilityCause cause) throws AbilityException {
             final ServerLocation eyeLocation = cause.eyeLocation();
-            if (eyeLocation.getOrElse(Keys.IS_SOLID, false) || !eyeLocation.getFluid().isEmpty()) {
+            if (eyeLocation.getOrElse(Keys.IS_SOLID, false) || !eyeLocation.fluid().isEmpty()) {
                 return AbilityTaskResult.end();
             }
 
             if (cause.control() == FALL.get()) {
-                if (cause.cause().getContext().require(BendingEventContextKeys.FALL_DISTANCE) > this.config.fallThreshold()) {
+                if (cause.cause().context().require(BendingEventContextKeys.FALL_DISTANCE) > this.config.fallThreshold()) {
                     return AbilityTaskResult.next(burstFall(this.config, cause.location()));
                 } else {
                     return AbilityTaskResult.end();
@@ -111,9 +111,9 @@ public final class AirBurstAbility {
 
             final ServerLocation eyeLocation = cause.eyeLocation();
             if (this.fullyCharged) {
-                eyeLocation.getWorld().spawnParticles(this.config.chargedParticle(), eyeLocation.getPosition());
+                eyeLocation.world().spawnParticles(this.config.chargedParticle(), eyeLocation.position());
             } else {
-                eyeLocation.getWorld().spawnParticles(this.config.chargingParticle(), eyeLocation.getPosition());
+                eyeLocation.world().spawnParticles(this.config.chargingParticle(), eyeLocation.position());
             }
 
             return AbilityTaskResult.repeat();
@@ -169,7 +169,7 @@ public final class AirBurstAbility {
         }
 
         private boolean progress(final Raycast raycast, final ServerLocation current, final AbilityCause cause) {
-            if (current.getOrElse(Keys.IS_SOLID, false) || !current.getFluid().isEmpty()) {
+            if (current.getOrElse(Keys.IS_SOLID, false) || !current.fluid().isEmpty()) {
                 // End if the current block is solid or liquid.
                 return false;
             }
@@ -186,7 +186,7 @@ public final class AirBurstAbility {
             });
 
             // Pretty!
-            current.getWorld().spawnParticles(this.config.rayParticle(), current.getPosition());
+            current.world().spawnParticles(this.config.rayParticle(), current.position());
 
             if (Math.random() < 0.05) {
                 // Add some sound every now and then.

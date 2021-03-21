@@ -84,7 +84,7 @@ public final class Raycast {
      * @return True if the ray moved, false otherwise.
      */
     public final boolean advance(final BiPredicate<Raycast, ServerLocation> predicate) {
-        if (this.range > 0 && this.currentLocation.getPosition().distanceSquared(this.origin.getPosition()) > this.rangeSquared) {
+        if (this.range > 0 && this.currentLocation.position().distanceSquared(this.origin.position()) > this.rangeSquared) {
             // The ray is beyond its allowed range.
             return false;
         }
@@ -119,14 +119,14 @@ public final class Raycast {
 
     public final void affectEntities(final Collection<UUID> affected, final double radius, final Predicate<Entity> predicate) {
         for (final Entity entity : EntityUtil.entitiesWithin(this.currentLocation, radius)) {
-            if (affected.contains(entity.getUniqueId())) {
+            if (affected.contains(entity.uniqueId())) {
                 // This entity has already been affected.
                 continue;
             }
 
             if (predicate.test(entity)) {
                 // The entity was affected.
-                affected.add(entity.getUniqueId());
+                affected.add(entity.uniqueId());
             }
         }
     }
@@ -144,9 +144,9 @@ public final class Raycast {
             knockback = knockbackSelf;
         }
 
-        knockback *= 1 - target.getPosition().distance(this.origin.getPosition()) / (2 * this.range);
+        knockback *= 1 - target.position().distance(this.origin.position()) / (2 * this.range);
 
-        if (target.getServerLocation().add(0.0, -0.5, 0.0).getOrElse(Keys.IS_SOLID, false)) {
+        if (target.serverLocation().add(0.0, -0.5, 0.0).getOrElse(Keys.IS_SOLID, false)) {
             knockback *= 0.85;
         }
 
